@@ -20,19 +20,15 @@ jobs:
           submodules: true
           lfs: false
 
-      - name: Debug Directory
-        run: |
-          pwd
-          ls -la
-          echo "Current directory contents:"
-          ls -R
-          echo "Package.json contents:"
-          cat package.json || echo "package.json not found"
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+
+      - name: Install Dependencies and Build
+        run: |
+          npm install
+          npm run build
 
       - name: Create env file
         run: |
@@ -48,9 +44,7 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: "dist"
-          skip_app_build: false
-          app_build_command: "npm install && npm run build"
-          deployment_environment: "Production"
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
