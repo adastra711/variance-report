@@ -1,35 +1,36 @@
 {
   "name": "variance-report",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.62.0",
+    "@fluentui/react-components": "^9.46.7",
     "@huggingface/inference": "^3.8.1",
-    "@microsoft/teams-js": "^2.36.0",
-    "cohere-ai": "^7.17.1",
-    "docx": "^9.4.1",
+    "@microsoft/teams-js": "^2.21.0",
+    "cohere-ai": "^7.8.0",
+    "docx": "^8.5.0",
     "openai": "^4.95.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.22.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
     "globals": "^16.0.0",
-    "typescript": "~5.3.3",
-    "typescript-eslint": "^8.26.1",
-    "vite": "^5.1.0"
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
   }
 }
