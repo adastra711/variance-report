@@ -5,13 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: 'dist',
+    outDir: 'build',
     sourcemap: true,
     rollupOptions: {
+      external: ['scheduler'],
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'fluent-vendor': ['@fluentui/react-components'],
+        globals: {
+          scheduler: 'scheduler'
         }
       }
     }
