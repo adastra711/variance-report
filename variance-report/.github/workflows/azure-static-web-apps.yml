@@ -20,6 +20,17 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
       - name: Create env file
         run: |
           echo "VITE_COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" > .env
@@ -34,8 +45,7 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: "dist"
-          app_build_command: "npm run build:azure"
-          skip_app_build: false
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
