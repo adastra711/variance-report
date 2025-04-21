@@ -28,6 +28,9 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Build
+        run: npm run build
+
       - name: Create env file
         run: |
           echo "VITE_COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" > .env
@@ -42,7 +45,7 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: "dist"
-          app_build_command: "npm run build"
+          app_build_command: "npm install --legacy-peer-deps && npm run build"
           skip_app_build: false
 
   close_pull_request_job:
