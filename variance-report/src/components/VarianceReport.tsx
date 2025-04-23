@@ -11,6 +11,7 @@ import {
   Text,
   SelectionEvents,
   OptionOnSelectData,
+  shorthands,
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
 import { CohereClient } from "cohere-ai";
@@ -43,6 +44,14 @@ const useStyles = makeStyles({
   expandedDescription: {
     marginTop: tokens.spacingVerticalS,
     color: tokens.colorNeutralForeground2,
+  },
+  dropdown: {
+    '& .fui-Listbox': {
+      maxHeight: '300px',
+      overflowY: 'auto',
+      ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+      ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    }
   }
 });
 
@@ -306,6 +315,7 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
           <Dropdown
             placeholder="Select a category"
             value={currentEntry.category}
+            className={styles.dropdown}
             onOptionSelect={(event: SelectionEvents, data: OptionOnSelectData) => {
               if (data.optionValue) {
                 setCurrentEntry({ ...currentEntry, category: data.optionValue });
