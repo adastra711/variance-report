@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/identity": "^4.9.1",
+    "@azure/openai": "^2.0.0",
     "@fluentui/react-components": "^9.46.7",
     "@huggingface/inference": "^3.8.1",
     "@microsoft/teams-js": "^2.21.0",
