@@ -15,7 +15,8 @@ import {
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
 import { AzureOpenAI } from "openai";
-import { config } from '../config';
+import { getConfigValue } from "../config";
+import { AzureOpenAIClient } from "openai";
 
 const useStyles = makeStyles({
   root: {
@@ -145,65 +146,60 @@ interface Entry {
 // Add delay function for rate limiting
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export const VarianceReport: React.FC = () => {
+export default function VarianceReport() {
   const styles = useStyles();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [currentEntry, setCurrentEntry] = useState<Partial<Entry>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>();
   const [client, setClient] = useState<AzureOpenAI | null>(null);
+  const [deployment, setDeployment] = useState<string | undefined>();
 
   useEffect(() => {
-    const initializeClient = async () => {
+    async function initializeClient() {
       try {
-        const [apiKey, endpoint, deployment] = await Promise.all([
-          config.azureOpenAI.apiKey,
-          config.azureOpenAI.endpoint,
-          config.azureOpenAI.deployment
-        ]);
+        setIsLoading(true);
+        setError(undefined);
 
-        console.log('Configuration values:', {
-          apiKey: apiKey ? 'present' : 'missing',
-          endpoint: endpoint ? 'present' : 'missing',
-          deployment: deployment ? 'present' : 'missing'
-        });
+        // Fetch configuration from API
+        const response = await fetch('/api/config');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch config: ${response.statusText}`);
+        }
+        const config = await response.json();
+        const { AZURE_OPENAI_API_KEY: apiKey, AZURE_OPENAI_ENDPOINT: endpoint, AZURE_OPENAI_DEPLOYMENT: modelDeployment } = config;
 
-        if (!apiKey || !endpoint || !deployment) {
-          throw new Error(`Missing Azure OpenAI credentials: ${
-            !apiKey ? 'apiKey' : ''} ${
-            !endpoint ? 'endpoint' : ''} ${
-            !deployment ? 'deployment' : ''}`.trim());
+        if (!apiKey || !endpoint || !modelDeployment) {
+          throw new Error('Missing required configuration values');
         }
 
-        const newClient = new AzureOpenAI({
-          apiKey,
-          endpoint,
-          apiVersion: config.azureOpenAI.apiVersion,
-        });
-
+        const newClient = new AzureOpenAIClient(apiKey, endpoint);
         setClient(newClient);
-        setError(null);
+        setDeployment(modelDeployment);
       } catch (err) {
-        console.error("Error initializing Azure OpenAI client:", err);
-        setError(err instanceof Error ? err.message : "Failed to initialize Azure OpenAI client");
+        console.error('Failed to initialize Azure OpenAI client:', err);
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setIsLoading(false);
       }
-    };
+    }
 
     initializeClient();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client) {
-      setError('Azure OpenAI client not initialized');
+    if (!client || !deployment) {
+      setError('Client not initialized');
       return;
     }
 
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
       const response = await client.chat.completions.create({
+        model: deployment,
         messages: [
           {
             role: 'system',
@@ -214,7 +210,6 @@ export const VarianceReport: React.FC = () => {
             content: `Analyze this budget variance: Category: ${currentEntry.category}, Budget: ${currentEntry.budgetAmount}, Actual: ${currentEntry.actualAmount}, Comment: ${currentEntry.comment}`
           }
         ],
-        model: config.azureOpenAI.deployment,
         temperature: 0.7,
         max_tokens: 150
       });
@@ -264,6 +259,14 @@ export const VarianceReport: React.FC = () => {
       document.body.removeChild(a);
     });
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className={styles.root}>
@@ -354,6 +357,4 @@ export const VarianceReport: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default VarianceReport; 
+} 
