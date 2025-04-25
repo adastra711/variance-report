@@ -207,15 +207,15 @@ export default function VarianceReport() {
         messages: [
           {
             role: 'system',
-            content: 'You are a financial analyst assistant that provides detailed analysis of budget variances.'
+            content: 'You are a financial analyst. Provide brief, 2-3 sentence explanations for budget variances. Be concise and direct. Do not include numerical breakdowns or recommendations.'
           },
           {
             role: 'user',
-            content: `Analyze this budget variance: Category: ${currentEntry.category}, Budget: ${currentEntry.budgetAmount}, Actual: ${currentEntry.actualAmount}, Comment: ${currentEntry.comment}`
+            content: `Briefly explain this variance in 2-3 sentences: Category: ${currentEntry.category}, Budget: ${currentEntry.budgetAmount}, Actual: ${currentEntry.actualAmount}, Comment: ${currentEntry.comment}`
           }
         ],
         temperature: 0.7,
-        max_tokens: 150
+        max_tokens: 100
       });
 
       const analysis = response.choices[0]?.message?.content || undefined;
