@@ -1,26 +1,38 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    outDir: 'build',
-    sourcemap: true,
-    rollupOptions: {
-      external: ['scheduler'],
-      output: {
-        globals: {
-          scheduler: 'scheduler'
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  const env = loadEnv(mode, process.cwd(), '')
+
+  return {
+    plugins: [react()],
+    build: {
+      outDir: 'build',
+      sourcemap: true,
+      rollupOptions: {
+        external: ['scheduler'],
+        output: {
+          globals: {
+            scheduler: 'scheduler'
+          }
         }
       }
-    }
-  },
-  server: {
-    port: 3000,
-    https: {
-      key: process.env.HTTPS_KEY,
-      cert: process.env.HTTPS_CERT
+    },
+    server: {
+      port: 3000,
+      https: {
+        key: process.env.HTTPS_KEY,
+        cert: process.env.HTTPS_CERT
+      }
+    },
+    define: {
+      // Expose Azure OpenAI environment variables to the client
+      'import.meta.env.VITE_AZURE_OPENAI_API_KEY': JSON.stringify(env.AZURE_OPENAI_API_KEY),
+      'import.meta.env.VITE_AZURE_OPENAI_ENDPOINT': JSON.stringify(env.AZURE_OPENAI_ENDPOINT),
+      'import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT': JSON.stringify(env.AZURE_OPENAI_DEPLOYMENT)
     }
   }
 })

@@ -31,9 +31,9 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          VITE_AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          VITE_AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
 
       - name: Deploy
         id: builddeploy
@@ -47,10 +47,6 @@ jobs:
           skip_app_build: true
           app_build_command: "npm run build"
           app_artifact_location: "dist"
-          env: |
-            VITE_AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}
-            VITE_AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}
-            VITE_AZURE_OPENAI_DEPLOYMENT=${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
