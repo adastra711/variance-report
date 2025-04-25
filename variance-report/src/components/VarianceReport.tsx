@@ -15,7 +15,6 @@ import {
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
 import { AzureOpenAI } from "openai";
-import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
 
 const useStyles = makeStyles({
   root: {
@@ -144,15 +143,11 @@ interface VarianceEntry {
 }
 
 // Initialize Azure OpenAI client
-const credential = new DefaultAzureCredential();
-const scope = "https://cognitiveservices.azure.com/.default";
-const azureADTokenProvider = getBearerTokenProvider(credential, scope);
-
 const client = new AzureOpenAI({
-  azureADTokenProvider,
+  apiKey: import.meta.env.VITE_AZURE_OPENAI_API_KEY || "",
+  endpoint: import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || "",
+  deployment: import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT_NAME || "",
   apiVersion: "2024-02-15-preview",
-  endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-  deployment: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
 });
 
 // Add delay function for rate limiting
