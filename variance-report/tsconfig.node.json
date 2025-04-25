@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
@@ -21,4 +22,15 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["vite.config.ts"]
+=======
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"]
+  },
+  "include": ["./vite.config.ts"]
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
 }

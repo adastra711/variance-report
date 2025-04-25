@@ -1,0 +1,54 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.16",
+    "version": "1.0.0",
+    "id": "eeab228c-6def-48a3-8daf-668a5f013f89",
+    "packageName": "com.variance.report",
+    "developer": {
+        "name": "Variance Report",
+        "websiteUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net",
+        "privacyUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net/privacy",
+        "termsOfUseUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net/terms"
+    },
+    "name": {
+        "short": "Variance Report",
+        "full": "Variance Report Generator"
+    },
+    "description": {
+        "short": "Generate detailed P&L variance reports",
+        "full": "Create professional P&L variance reports with detailed explanations using AI assistance"
+    },
+    "icons": {
+        "outline": "outline.png",
+        "color": "color.png"
+    },
+    "accentColor": "#FFFFFF",
+    "configurableTabs": [
+        {
+            "configurationUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net/config",
+            "canUpdateConfiguration": true,
+            "scopes": [
+                "team",
+                "groupchat"
+            ]
+        }
+    ],
+    "staticTabs": [
+        {
+            "entityId": "index",
+            "name": "Variance Report",
+            "contentUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net",
+            "websiteUrl": "https://proud-rock-071d9ab0f.6.azurestaticapps.net",
+            "scopes": [
+                "personal"
+            ]
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": [
+        "proud-rock-071d9ab0f.6.azurestaticapps.net"
+    ]
+} 

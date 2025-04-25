@@ -1,6 +1,7 @@
 {
   "name": "variance-report",
   "private": true,
+<<<<<<< HEAD
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -31,5 +32,41 @@
     "typescript": "~5.3.3",
     "typescript-eslint": "^8.26.1",
     "vite": "^5.1.0"
+=======
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build --outDir build",
+    "build:azure": "npm install --legacy-peer-deps && tsc && vite build --outDir build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.9.1",
+    "@azure/openai": "^2.0.0",
+    "@fluentui/react-components": "^9.46.7",
+    "@huggingface/inference": "^3.8.1",
+    "@microsoft/teams-js": "^2.21.0",
+    "cohere-ai": "^7.8.0",
+    "docx": "^8.5.0",
+    "openai": "^4.95.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "scheduler": "^0.23.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "globals": "^16.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
   }
 }

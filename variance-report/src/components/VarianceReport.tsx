@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useState, ChangeEvent } from 'react';
+=======
+import React, { useState, ChangeEvent, useEffect } from 'react';
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
 import {
   Button,
   Dropdown,
@@ -11,9 +15,17 @@ import {
   Text,
   SelectionEvents,
   OptionOnSelectData,
+<<<<<<< HEAD
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
 import { CohereClient } from "cohere-ai";
+=======
+  shorthands,
+} from '@fluentui/react-components';
+import { Document, Packer, Paragraph } from 'docx';
+import { AzureOpenAI } from "openai";
+import { getConfigValue } from "../config";
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
 
 const useStyles = makeStyles({
   root: {
@@ -43,6 +55,17 @@ const useStyles = makeStyles({
   expandedDescription: {
     marginTop: tokens.spacingVerticalS,
     color: tokens.colorNeutralForeground2,
+<<<<<<< HEAD
+=======
+  },
+  dropdown: {
+    '& .fui-Listbox': {
+      maxHeight: '300px',
+      overflowY: 'auto',
+      ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke1),
+      ...shorthands.borderRadius(tokens.borderRadiusMedium),
+    }
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
   }
 });
 
@@ -124,6 +147,7 @@ const costCategories = [
   '3220-BEV-China/Glass/Silver'
 ];
 
+<<<<<<< HEAD
 interface VarianceEntry {
   category: string;
   budgetAmount: number;
@@ -240,10 +264,74 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
   const handleSubmit = async () => {
     if (!currentEntry.category || !currentEntry.budgetAmount || !currentEntry.actualAmount || !currentEntry.comment) {
       alert('Please fill in all fields');
+=======
+interface Entry {
+  category: string;
+  budgetAmount: number;
+  actualAmount: number;
+  comment: string;
+  analysis?: string;
+}
+
+// Add delay function for rate limiting
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export default function VarianceReport() {
+  const styles = useStyles();
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [currentEntry, setCurrentEntry] = useState<Partial<Entry>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [client, setClient] = useState<AzureOpenAI | null>(null);
+  const [deployment, setDeployment] = useState<string | undefined>();
+
+  useEffect(() => {
+    async function initializeClient() {
+      try {
+        setIsLoading(true);
+        setError(undefined);
+
+        // Hardcoded values directly in the code
+        const apiKey = "Ct9JSYy5Ewlwn9NnWmAik6ynJLl3VvJ9vodQTC3DTn5G9hgnrwnZJQQJ99BDACYeBjFXJ3w3AAABACOG1FKb";
+        const endpoint = "https://pgmai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2025-01-01-preview";
+        const modelDeployment = "gpt-4";
+
+        console.log('Using hardcoded values:', {
+          apiKey: apiKey.substring(0, 5) + '...',
+          endpoint,
+          modelDeployment
+        });
+
+        const newClient = new AzureOpenAI({
+          apiKey,
+          endpoint,
+          apiVersion: '2024-02-15-preview',
+          dangerouslyAllowBrowser: true  // Required for browser environments
+        });
+        
+        setClient(newClient);
+        setDeployment(modelDeployment);
+      } catch (err) {
+        console.error('Failed to initialize Azure OpenAI client:', err);
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    initializeClient();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!client || !deployment) {
+      setError('Client not initialized');
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
       return;
     }
 
     setIsLoading(true);
+<<<<<<< HEAD
     try {
       const varianceAmount = Number(currentEntry.budgetAmount) - Number(currentEntry.actualAmount);
       const fullDescription = await generateFullDescription(
@@ -259,18 +347,60 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
         varianceAmount,
         comment: currentEntry.comment,
         fullDescription,
+=======
+    setError(undefined);
+
+    try {
+      const response = await client.chat.completions.create({
+        model: deployment,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a financial analyst. Provide brief, 2-3 sentence explanations for budget variances. Be concise and direct. Do not include numerical breakdowns or recommendations.'
+          },
+          {
+            role: 'user',
+            content: `Briefly explain this variance in 2-3 sentences: Category: ${currentEntry.category}, Budget: ${currentEntry.budgetAmount}, Actual: ${currentEntry.actualAmount}, Comment: ${currentEntry.comment}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 100
+      });
+
+      const analysis = response.choices[0]?.message?.content || undefined;
+
+      const newEntry: Entry = {
+        category: currentEntry.category || '',
+        budgetAmount: Number(currentEntry.budgetAmount) || 0,
+        actualAmount: Number(currentEntry.actualAmount) || 0,
+        comment: currentEntry.comment || '',
+        analysis
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
       };
 
       setEntries([...entries, newEntry]);
       setCurrentEntry({});
+<<<<<<< HEAD
     } catch (error) {
       console.error('Error submitting entry:', error);
       alert('An error occurred while processing your entry. Please check the console for details.');
+=======
+    } catch (err) {
+      console.error('Error submitting entry:', err);
+      setError(err instanceof Error ? err.message : 'Failed to analyze entry');
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
     } finally {
       setIsLoading(false);
     }
   };
 
+<<<<<<< HEAD
+=======
+  const formatEntry = (entry: Entry) => {
+    return `${entry.category}: Ended the month at an actual expense of $${entry.actualAmount.toLocaleString()} versus a budget of $${entry.budgetAmount.toLocaleString()}, resulting in a variance of $${(entry.actualAmount - entry.budgetAmount).toLocaleString()}. ${entry.analysis || ''}`;
+  };
+
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
   const generateDocument = () => {
     const doc = new Document({
       sections: [{
@@ -293,12 +423,26 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
     });
   };
 
+<<<<<<< HEAD
   return (
     <div className={styles.root}>
       <form onSubmit={(e) => {
         e.preventDefault();
         handleSubmit();
       }}>
+=======
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div className={styles.root}>
+      <form onSubmit={handleSubmit}>
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
         <Field
           label="Cost Category"
           className={styles.field}
@@ -306,6 +450,10 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
           <Dropdown
             placeholder="Select a category"
             value={currentEntry.category}
+<<<<<<< HEAD
+=======
+            className={styles.dropdown}
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
             onOptionSelect={(event: SelectionEvents, data: OptionOnSelectData) => {
               if (data.optionValue) {
                 setCurrentEntry({ ...currentEntry, category: data.optionValue });
@@ -384,6 +532,10 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
       )}
     </div>
   );
+<<<<<<< HEAD
 };
 
 export default VarianceReport; 
+=======
+} 
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a

@@ -1,4 +1,21 @@
 {
+<<<<<<< HEAD
+=======
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": "."
+  },
+>>>>>>> 81130407de8e86cbad77f3d2441f4b060384ed6a
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
