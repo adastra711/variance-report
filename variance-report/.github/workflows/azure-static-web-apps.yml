@@ -30,6 +30,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
 
       - name: Deploy
         id: builddeploy
@@ -42,17 +46,8 @@ jobs:
           api_location: ""
           output_location: "dist"
           skip_app_build: true
-          configuration: |
-            {
-              "globalHeaders": {
-                "Content-Security-Policy": "default-src 'self' https://*.openai.azure.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
-              },
-              "navigationFallback": {
-                "rewrite": "/index.html",
-                "exclude": ["/images/*.{png,jpg,gif}", "/css/*"]
-              }
-            }
-          app_settings: |
+          app_build_command: "npm run build"
+          app_build_command_env: |
             {
               "AZURE_OPENAI_API_KEY": "${{ secrets.AZURE_OPENAI_API_KEY }}",
               "AZURE_OPENAI_ENDPOINT": "${{ secrets.AZURE_OPENAI_ENDPOINT }}",

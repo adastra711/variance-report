@@ -1,16 +1,19 @@
-// Try to get configuration from Azure Static Web Apps configuration first
+// Configuration values for Azure OpenAI
 const getConfigValue = (key: string): string => {
-  // First try Azure Static Web Apps configuration
-  if (typeof window !== 'undefined') {
-    const azureConfig = (window as any).__env__ || {};
-    if (azureConfig[key]) {
-      return azureConfig[key];
+  // In Azure Static Web Apps, environment variables are available directly
+  if (import.meta.env.PROD) {
+    // In production, try Azure Static Web Apps environment variables
+    const value = import.meta.env[key];
+    if (value) {
+      console.log(`Found ${key} in production env:`, value);
+      return value;
     }
   }
-  
-  // Fall back to Vite environment variables
+
+  // In development, try Vite environment variables
   const envValue = import.meta.env[`VITE_${key}`];
   if (envValue) {
+    console.log(`Found ${key} in Vite env:`, envValue);
     return envValue;
   }
 
@@ -18,10 +21,12 @@ const getConfigValue = (key: string): string => {
   if (import.meta.env.DEV) {
     const devValue = import.meta.env[key];
     if (devValue) {
+      console.log(`Found ${key} in dev env:`, devValue);
       return devValue;
     }
   }
 
+  console.log(`No value found for ${key}`);
   return "";
 };
 
