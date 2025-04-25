@@ -39,10 +39,14 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          api_location: "api"
           output_location: "dist"
           skip_app_build: true
-          api_build_command: "npm install --production"
+          configuration: |
+            {
+              "AZURE_OPENAI_API_KEY": "${{ secrets.AZURE_OPENAI_API_KEY }}",
+              "AZURE_OPENAI_ENDPOINT": "${{ secrets.AZURE_OPENAI_ENDPOINT }}",
+              "AZURE_OPENAI_DEPLOYMENT": "${{ secrets.AZURE_OPENAI_DEPLOYMENT }}"
+            }
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
