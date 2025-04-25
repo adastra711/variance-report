@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import {
   Button,
   Dropdown,
@@ -142,14 +142,6 @@ interface VarianceEntry {
   fullDescription: string;
 }
 
-// Initialize Azure OpenAI client
-const client = new AzureOpenAI({
-  apiKey: import.meta.env.VITE_AZURE_OPENAI_API_KEY || "",
-  endpoint: import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || "",
-  deployment: import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT_NAME || "",
-  apiVersion: "2024-02-15-preview",
-});
-
 // Add delay function for rate limiting
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -158,8 +150,32 @@ export const VarianceReport: React.FC = () => {
   const [entries, setEntries] = useState<VarianceEntry[]>([]);
   const [currentEntry, setCurrentEntry] = useState<Partial<VarianceEntry>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize Azure OpenAI client
+  const client = new AzureOpenAI({
+    apiKey: process.env.AZURE_OPENAI_API_KEY || "",
+    endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
+    apiVersion: "2024-02-15-preview",
+  });
+
+  useEffect(() => {
+    // Check if required environment variables are present
+    if (!process.env.AZURE_OPENAI_API_KEY || !process.env.AZURE_OPENAI_ENDPOINT || !process.env.AZURE_OPENAI_DEPLOYMENT) {
+      setError("Missing required Azure OpenAI credentials. Please check your environment variables.");
+      console.error("Missing environment variables:", {
+        apiKey: !!process.env.AZURE_OPENAI_API_KEY,
+        endpoint: !!process.env.AZURE_OPENAI_ENDPOINT,
+        deployment: !!process.env.AZURE_OPENAI_DEPLOYMENT
+      });
+    }
+  }, []);
 
   const generateFullDescription = async (comment: string, category: string, varianceAmount: number) => {
+    if (error) {
+      throw new Error(error);
+    }
+
     try {
       console.log('Starting Azure OpenAI generation with:', {
         comment,
@@ -181,7 +197,7 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
               { role: "system", content: "You are a helpful assistant that generates professional variance report explanations." },
               { role: "user", content: prompt }
             ],
-            model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "",
+            model: process.env.AZURE_OPENAI_DEPLOYMENT || "",
             temperature: 0.7,
             max_tokens: 150,
           });
