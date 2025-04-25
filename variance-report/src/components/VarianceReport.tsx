@@ -160,13 +160,24 @@ export default function VarianceReport() {
         setIsLoading(true);
         setError(undefined);
 
-        // Fetch configuration from API
-        const response = await fetch('/api/config');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch config: ${response.statusText}`);
+        let apiKey, endpoint, modelDeployment;
+
+        // In development, use Vite env vars directly
+        if (import.meta.env.DEV) {
+          apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
+          endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
+          modelDeployment = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT;
+        } else {
+          // In production, fetch from API
+          const response = await fetch('/api/config');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch config: ${response.statusText}`);
+          }
+          const config = await response.json();
+          apiKey = config.AZURE_OPENAI_API_KEY;
+          endpoint = config.AZURE_OPENAI_ENDPOINT;
+          modelDeployment = config.AZURE_OPENAI_DEPLOYMENT;
         }
-        const config = await response.json();
-        const { AZURE_OPENAI_API_KEY: apiKey, AZURE_OPENAI_ENDPOINT: endpoint, AZURE_OPENAI_DEPLOYMENT: modelDeployment } = config;
 
         if (!apiKey || !endpoint || !modelDeployment) {
           throw new Error('Missing required configuration values');
