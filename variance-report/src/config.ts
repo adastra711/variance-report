@@ -1,22 +1,13 @@
 // Configuration values for Azure OpenAI
 const getConfigValue = (key: string): string => {
-  // Try different environment variable patterns
-  const patterns = [
-    `REACT_APP_${key}`,  // React apps in production
-    key,                 // Direct Azure portal name
-    `VITE_${key}`       // Local development
-  ];
-
-  for (const pattern of patterns) {
-    const value = import.meta.env[pattern];
-    if (value) {
-      console.log(`Found value for ${key} using pattern ${pattern}`);
-      return value;
-    }
-  }
-
-  console.log(`No value found for ${key} after trying patterns:`, patterns);
-  return "";
+  // In Vite, environment variables MUST be prefixed with VITE_
+  const viteKey = `VITE_${key}`;
+  const value = import.meta.env[viteKey];
+  console.log(`Checking ${viteKey}:`, {
+    value: value ? 'present' : 'missing',
+    allEnvKeys: Object.keys(import.meta.env).join(', ')
+  });
+  return value || "";
 };
 
 export const config = {
