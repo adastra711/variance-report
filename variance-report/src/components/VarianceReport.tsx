@@ -134,13 +134,12 @@ const costCategories = [
   '3220-BEV-China/Glass/Silver'
 ];
 
-interface VarianceEntry {
+interface Entry {
   category: string;
   budgetAmount: number;
   actualAmount: number;
-  varianceAmount: number;
   comment: string;
-  fullDescription: string;
+  analysis?: string;
 }
 
 // Add delay function for rate limiting
@@ -148,21 +147,18 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const VarianceReport: React.FC = () => {
   const styles = useStyles();
-  const [entries, setEntries] = useState<VarianceEntry[]>([]);
-  const [currentEntry, setCurrentEntry] = useState<Partial<VarianceEntry>>({});
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [currentEntry, setCurrentEntry] = useState<Partial<Entry>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<AzureOpenAI | null>(null);
 
   useEffect(() => {
-    // Initialize Azure OpenAI client
-    const initializeClient = async () => {
+    const initializeClient = () => {
       try {
-        const [apiKey, endpoint, deployment] = await Promise.all([
-          config.azureOpenAI.apiKey,
-          config.azureOpenAI.endpoint,
-          config.azureOpenAI.deployment
-        ]);
+        const apiKey = config.azureOpenAI.apiKey;
+        const endpoint = config.azureOpenAI.endpoint;
+        const deployment = config.azureOpenAI.deployment;
 
         console.log('Configuration values:', {
           apiKey: apiKey ? 'present' : 'missing',
@@ -187,142 +183,62 @@ export const VarianceReport: React.FC = () => {
         setError(null);
       } catch (err) {
         console.error("Error initializing Azure OpenAI client:", err);
-        setError(err instanceof Error ? err.message : "Failed to initialize Azure OpenAI client. Please check your configuration.");
+        setError(err instanceof Error ? err.message : "Failed to initialize Azure OpenAI client");
       }
     };
 
     initializeClient();
   }, []);
 
-  const generateFullDescription = async (comment: string, category: string, varianceAmount: number) => {
-    if (error) {
-      throw new Error(error);
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!client) {
-      throw new Error("Azure OpenAI client not initialized");
-    }
-
-    try {
-      console.log('Starting Azure OpenAI generation with:', {
-        comment,
-        category,
-        varianceAmount
-      });
-      
-      let retries = 0;
-      const maxRetries = 3;
-      
-      while (retries < maxRetries) {
-        try {
-          const prompt = `Use the input string as the basis for an expanded 2-3 sentence response which may serve as explanation of a variance on a monthly variance report for a hotel.  For example, if the input is "New PC for Front Desk," an appropriate response would be, "due to the purchase of a new computer for the Front Desk, necessary to maintain the number of active workstations for guest services.  Expense approved and anticipated."
-
-Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
-
-          const response = await client.chat.completions.create({
-            messages: [
-              { role: "system", content: "You are a helpful assistant that generates professional variance report explanations." },
-              { role: "user", content: prompt }
-            ],
-            model: config.azureOpenAI.deployment,
-            temperature: 0.7,
-            max_tokens: 150,
-          });
-
-          const generatedText = response.choices[0]?.message?.content;
-          console.log('Received Azure OpenAI response:', generatedText);
-          
-          if (generatedText) {
-            const cleanedText = generatedText.trim();
-            
-            if (cleanedText.length < 10) {
-              throw new Error('Response too short');
-            }
-
-            return cleanedText;
-          }
-
-          throw new Error('Invalid response format');
-        } catch (error) {
-          console.error('Error details:', {
-            error,
-            attempt: retries + 1,
-            maxRetries
-          });
-
-          retries++;
-          if (error instanceof Error) {
-            if (error.message.includes('429')) {
-              const waitTime = Math.pow(2, retries) * 1000;
-              console.log(`Rate limited, waiting ${waitTime}ms before retry ${retries}/${maxRetries}`);
-              await delay(waitTime);
-            } else {
-              console.error('Non-rate-limit error:', error.message);
-              if (retries === maxRetries) {
-                throw error;
-              }
-              await delay(1000);
-            }
-          } else {
-            console.error('Unknown error type:', error);
-            if (retries === maxRetries) {
-              throw new Error('Unknown error occurred');
-            }
-            await delay(1000);
-          }
-        }
-      }
-      
-      throw new Error('Failed after maximum retries');
-    } catch (err: unknown) {
-      const error = err as Error;
-      console.error('Final error in generateFullDescription:', {
-        error,
-        message: error.message,
-        stack: error.stack
-      });
-      
-      alert(`Error generating description: ${error.message}. Please try again or contact support if the issue persists.`);
-      return `Unable to generate detailed description due to error. Original comment: ${comment}`;
-    }
-  };
-
-  const formatEntry = (entry: VarianceEntry) => {
-    return `${entry.category}: Ended the month at an actual expense of $${entry.actualAmount.toLocaleString()} versus a budget of $${entry.budgetAmount.toLocaleString()}, resulting in a variance of $${entry.varianceAmount.toLocaleString()}. ${entry.fullDescription}`;
-  };
-
-  const handleSubmit = async () => {
-    if (!currentEntry.category || !currentEntry.budgetAmount || !currentEntry.actualAmount || !currentEntry.comment) {
-      alert('Please fill in all fields');
+      setError('Azure OpenAI client not initialized');
       return;
     }
 
     setIsLoading(true);
-    try {
-      const varianceAmount = Number(currentEntry.budgetAmount) - Number(currentEntry.actualAmount);
-      const fullDescription = await generateFullDescription(
-        currentEntry.comment,
-        currentEntry.category,
-        varianceAmount
-      );
+    setError(null);
 
-      const newEntry: VarianceEntry = {
-        category: currentEntry.category,
-        budgetAmount: Number(currentEntry.budgetAmount),
-        actualAmount: Number(currentEntry.actualAmount),
-        varianceAmount,
-        comment: currentEntry.comment,
-        fullDescription,
+    try {
+      const response = await client.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a financial analyst assistant that provides detailed analysis of budget variances.'
+          },
+          {
+            role: 'user',
+            content: `Analyze this budget variance: Category: ${currentEntry.category}, Budget: ${currentEntry.budgetAmount}, Actual: ${currentEntry.actualAmount}, Comment: ${currentEntry.comment}`
+          }
+        ],
+        model: config.azureOpenAI.deployment,
+        temperature: 0.7,
+        max_tokens: 150
+      });
+
+      const analysis = response.choices[0]?.message?.content;
+
+      const newEntry: Entry = {
+        category: currentEntry.category || '',
+        budgetAmount: Number(currentEntry.budgetAmount) || 0,
+        actualAmount: Number(currentEntry.actualAmount) || 0,
+        comment: currentEntry.comment || '',
+        analysis
       };
 
       setEntries([...entries, newEntry]);
       setCurrentEntry({});
-    } catch (error) {
-      console.error('Error submitting entry:', error);
-      alert('An error occurred while processing your entry. Please check the console for details.');
+    } catch (err) {
+      console.error('Error submitting entry:', err);
+      setError(err instanceof Error ? err.message : 'Failed to analyze entry');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatEntry = (entry: Entry) => {
+    return `${entry.category}: Ended the month at an actual expense of $${entry.actualAmount.toLocaleString()} versus a budget of $${entry.budgetAmount.toLocaleString()}, resulting in a variance of $${(entry.actualAmount - entry.budgetAmount).toLocaleString()}. ${entry.analysis || ''}`;
   };
 
   const generateDocument = () => {
@@ -349,10 +265,7 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
 
   return (
     <div className={styles.root}>
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}>
+      <form onSubmit={handleSubmit}>
         <Field
           label="Cost Category"
           className={styles.field}
