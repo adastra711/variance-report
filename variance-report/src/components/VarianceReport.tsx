@@ -156,22 +156,35 @@ export const VarianceReport: React.FC = () => {
 
   useEffect(() => {
     // Initialize Azure OpenAI client
-    try {
-      if (!config.azureOpenAI.apiKey || !config.azureOpenAI.endpoint) {
-        throw new Error("Missing Azure OpenAI credentials");
+    const initializeClient = async () => {
+      try {
+        // Wait a bit for Azure Static Web Apps configuration to load
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (!config.azureOpenAI.apiKey || !config.azureOpenAI.endpoint) {
+          console.error("Missing configuration:", {
+            apiKey: config.azureOpenAI.apiKey ? "present" : "missing",
+            endpoint: config.azureOpenAI.endpoint ? "present" : "missing",
+            deployment: config.azureOpenAI.deployment ? "present" : "missing"
+          });
+          throw new Error("Missing Azure OpenAI credentials");
+        }
+
+        const newClient = new AzureOpenAI({
+          apiKey: config.azureOpenAI.apiKey,
+          endpoint: config.azureOpenAI.endpoint,
+          apiVersion: config.azureOpenAI.apiVersion,
+        });
+
+        setClient(newClient);
+        setError(null);
+      } catch (err) {
+        console.error("Error initializing Azure OpenAI client:", err);
+        setError("Failed to initialize Azure OpenAI client. Please check your configuration.");
       }
+    };
 
-      const newClient = new AzureOpenAI({
-        apiKey: config.azureOpenAI.apiKey,
-        endpoint: config.azureOpenAI.endpoint,
-        apiVersion: config.azureOpenAI.apiVersion,
-      });
-
-      setClient(newClient);
-    } catch (err) {
-      console.error("Error initializing Azure OpenAI client:", err);
-      setError("Failed to initialize Azure OpenAI client. Please check your configuration.");
-    }
+    initializeClient();
   }, []);
 
   const generateFullDescription = async (comment: string, category: string, varianceAmount: number) => {
