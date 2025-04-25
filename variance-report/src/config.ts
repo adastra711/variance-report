@@ -1,15 +1,23 @@
 // Configuration values for Azure OpenAI
 const getConfigValue = (key: string): string => {
-  // In production, try Azure Static Web Apps environment variables
-  if (import.meta.env.PROD) {
-    const value = import.meta.env[key];
-    if (value) {
-      console.log(`Found ${key} in production env:`, value);
-      return value;
+  // Try Azure Static Web Apps configuration first
+  if (typeof window !== 'undefined') {
+    const azureConfig = (window as any).__env__ || {};
+    console.log('Azure Static Web Apps config:', azureConfig);
+    if (azureConfig[key]) {
+      console.log(`Found ${key} in Azure config:`, azureConfig[key]);
+      return azureConfig[key];
     }
   }
 
-  // In development, try Vite environment variables
+  // Try direct environment variables
+  const envValue = import.meta.env[key];
+  if (envValue) {
+    console.log(`Found ${key} in env:`, envValue);
+    return envValue;
+  }
+
+  // Try Vite environment variables
   const viteValue = import.meta.env[`VITE_${key}`];
   if (viteValue) {
     console.log(`Found ${key} in Vite env:`, viteValue);
@@ -20,7 +28,7 @@ const getConfigValue = (key: string): string => {
   return "";
 };
 
-// Export configuration with fallback values for development
+// Export configuration with fallback values
 export const config = {
   azureOpenAI: {
     apiKey: getConfigValue('AZURE_OPENAI_API_KEY'),
@@ -28,4 +36,5 @@ export const config = {
     deployment: getConfigValue('AZURE_OPENAI_DEPLOYMENT'),
     apiVersion: "2024-02-15-preview"
   }
+}; 
 }; 
