@@ -152,21 +152,23 @@ export const VarianceReport: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize Azure OpenAI client
+  // Initialize Azure OpenAI client with Vite environment variables
   const client = new AzureOpenAI({
-    apiKey: process.env.AZURE_OPENAI_API_KEY || "",
-    endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
+    apiKey: import.meta.env.VITE_AZURE_OPENAI_API_KEY || "",
+    endpoint: import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || "",
     apiVersion: "2024-02-15-preview",
   });
 
   useEffect(() => {
     // Check if required environment variables are present
-    if (!process.env.AZURE_OPENAI_API_KEY || !process.env.AZURE_OPENAI_ENDPOINT || !process.env.AZURE_OPENAI_DEPLOYMENT) {
+    if (!import.meta.env.VITE_AZURE_OPENAI_API_KEY || 
+        !import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || 
+        !import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT) {
       setError("Missing required Azure OpenAI credentials. Please check your environment variables.");
       console.error("Missing environment variables:", {
-        apiKey: !!process.env.AZURE_OPENAI_API_KEY,
-        endpoint: !!process.env.AZURE_OPENAI_ENDPOINT,
-        deployment: !!process.env.AZURE_OPENAI_DEPLOYMENT
+        apiKey: !!import.meta.env.VITE_AZURE_OPENAI_API_KEY,
+        endpoint: !!import.meta.env.VITE_AZURE_OPENAI_ENDPOINT,
+        deployment: !!import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT
       });
     }
   }, []);
@@ -197,7 +199,7 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
               { role: "system", content: "You are a helpful assistant that generates professional variance report explanations." },
               { role: "user", content: prompt }
             ],
-            model: process.env.AZURE_OPENAI_DEPLOYMENT || "",
+            model: import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT || "",
             temperature: 0.7,
             max_tokens: 150,
           });

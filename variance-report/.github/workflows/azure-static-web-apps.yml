@@ -22,11 +22,11 @@ jobs:
 
       - name: Create env file
         run: |
-          echo "AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}" > env.txt
-          echo "AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}" >> env.txt
-          echo "AZURE_OPENAI_DEPLOYMENT=${{ secrets.AZURE_OPENAI_DEPLOYMENT }}" >> env.txt
-          echo "COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" >> env.txt
-          echo "HUGGINGFACE_API_KEY=${{ secrets.HUGGINGFACE_API_KEY }}" >> env.txt
+          echo "VITE_AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}" > .env
+          echo "VITE_AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}" >> .env
+          echo "VITE_AZURE_OPENAI_DEPLOYMENT=${{ secrets.AZURE_OPENAI_DEPLOYMENT }}" >> .env
+          echo "VITE_COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" >> .env
+          echo "VITE_HUGGINGFACE_API_KEY=${{ secrets.HUGGINGFACE_API_KEY }}" >> .env
 
       - name: Build And Deploy
         id: builddeploy
