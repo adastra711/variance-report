@@ -174,7 +174,8 @@ export default function VarianceReport() {
         const newClient = new AzureOpenAI({
           apiKey,
           endpoint,
-          apiVersion: '2024-02-15-preview'
+          apiVersion: '2024-02-15-preview',
+          dangerouslyAllowBrowser: true  // Required for browser environments
         });
         
         setClient(newClient);
