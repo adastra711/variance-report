@@ -1,20 +1,20 @@
 // Configuration values for Azure OpenAI
 const getConfigValue = async (key: string): Promise<string> => {
   try {
-    // In Azure Static Web Apps, we can fetch the configuration from the API
+    // In production, try to get the value from Azure Static Web Apps API
     if (import.meta.env.PROD) {
       const response = await fetch('/api/config');
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
-      const config = await response.json();
-      console.log(`Found ${key} in API config:`, config[key]);
-      return config[key] || "";
+      const data = await response.json();
+      console.log(`API response for ${key}:`, data);
+      return data[key] || "";
     }
 
-    // Fall back to environment variables for development
+    // In development, use Vite environment variables
     const value = import.meta.env[`VITE_${key}`];
-    console.log(`Using ${key} from env:`, value);
+    console.log(`Development value for ${key}:`, value);
     return value || "";
   } catch (error) {
     console.error(`Error getting ${key}:`, error);
