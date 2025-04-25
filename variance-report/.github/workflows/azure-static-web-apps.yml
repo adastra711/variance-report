@@ -30,10 +30,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
 
       - name: Deploy
         id: builddeploy
@@ -43,19 +39,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/"
-          api_location: ""
+          api_location: "api"
           output_location: "dist"
           skip_app_build: true
-          configuration: |
-            {
-              "globalHeaders": {
-                "Content-Security-Policy": "default-src 'self' https://*.openai.azure.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
-              },
-              "navigationFallback": {
-                "rewrite": "/index.html",
-                "exclude": ["/images/*.{png,jpg,gif}", "/css/*"]
-              }
-            }
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

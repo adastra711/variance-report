@@ -1,39 +1,32 @@
 // Configuration values for Azure OpenAI
-const getConfigValue = (key: string): string => {
-  // Try Azure Static Web Apps configuration first
-  if (typeof window !== 'undefined') {
-    const azureConfig = (window as any).__env__ || {};
-    console.log('Azure Static Web Apps config:', azureConfig);
-    if (azureConfig[key]) {
-      console.log(`Found ${key} in Azure config:`, azureConfig[key]);
-      return azureConfig[key];
+const getConfigValue = async (key: string): Promise<string> => {
+  try {
+    // In Azure Static Web Apps, we can fetch the configuration from the API
+    if (import.meta.env.PROD) {
+      const response = await fetch('/api/config');
+      if (response.ok) {
+        const config = await response.json();
+        console.log(`Found ${key} in API config:`, config[key]);
+        return config[key] || "";
+      }
     }
-  }
 
-  // Try direct environment variables
-  const envValue = import.meta.env[key];
-  if (envValue) {
-    console.log(`Found ${key} in env:`, envValue);
-    return envValue;
+    // Fall back to environment variables for development
+    const value = import.meta.env[`VITE_${key}`];
+    console.log(`Using ${key} from env:`, value);
+    return value || "";
+  } catch (error) {
+    console.error(`Error getting ${key}:`, error);
+    return "";
   }
-
-  // Try Vite environment variables
-  const viteValue = import.meta.env[`VITE_${key}`];
-  if (viteValue) {
-    console.log(`Found ${key} in Vite env:`, viteValue);
-    return viteValue;
-  }
-
-  console.log(`No value found for ${key}`);
-  return "";
 };
 
 // Export configuration with fallback values
 export const config = {
   azureOpenAI: {
-    apiKey: getConfigValue('AZURE_OPENAI_API_KEY'),
-    endpoint: getConfigValue('AZURE_OPENAI_ENDPOINT'),
-    deployment: getConfigValue('AZURE_OPENAI_DEPLOYMENT'),
+    get apiKey() { return getConfigValue('AZURE_OPENAI_API_KEY'); },
+    get endpoint() { return getConfigValue('AZURE_OPENAI_ENDPOINT'); },
+    get deployment() { return getConfigValue('AZURE_OPENAI_DEPLOYMENT'); },
     apiVersion: "2024-02-15-preview"
   }
 }; 

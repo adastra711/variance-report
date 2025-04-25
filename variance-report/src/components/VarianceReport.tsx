@@ -158,44 +158,30 @@ export const VarianceReport: React.FC = () => {
     // Initialize Azure OpenAI client
     const initializeClient = async () => {
       try {
-        // Wait a bit for Azure Static Web Apps configuration to load
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const [apiKey, endpoint, deployment] = await Promise.all([
+          config.azureOpenAI.apiKey,
+          config.azureOpenAI.endpoint,
+          config.azureOpenAI.deployment
+        ]);
 
-        console.log('Current configuration:', {
-          apiKey: config.azureOpenAI.apiKey ? 'present' : 'missing',
-          endpoint: config.azureOpenAI.endpoint ? 'present' : 'missing',
-          deployment: config.azureOpenAI.deployment ? 'present' : 'missing',
-          apiVersion: config.azureOpenAI.apiVersion
+        console.log('Configuration values:', {
+          apiKey: apiKey ? 'present' : 'missing',
+          endpoint: endpoint ? 'present' : 'missing',
+          deployment: deployment ? 'present' : 'missing'
         });
 
-        if (!config.azureOpenAI.apiKey || !config.azureOpenAI.endpoint) {
-          const missingConfigs = [];
-          if (!config.azureOpenAI.apiKey) missingConfigs.push('apiKey');
-          if (!config.azureOpenAI.endpoint) missingConfigs.push('endpoint');
-          if (!config.azureOpenAI.deployment) missingConfigs.push('deployment');
-          
-          console.error("Missing configuration values:", missingConfigs);
-          throw new Error(`Missing Azure OpenAI credentials: ${missingConfigs.join(', ')}`);
+        if (!apiKey || !endpoint || !deployment) {
+          throw new Error(`Missing Azure OpenAI credentials: ${
+            !apiKey ? 'apiKey' : ''} ${
+            !endpoint ? 'endpoint' : ''} ${
+            !deployment ? 'deployment' : ''}`.trim());
         }
 
         const newClient = new AzureOpenAI({
-          apiKey: config.azureOpenAI.apiKey,
-          endpoint: config.azureOpenAI.endpoint,
+          apiKey,
+          endpoint,
           apiVersion: config.azureOpenAI.apiVersion,
         });
-
-        // Test the client with a simple request
-        try {
-          await newClient.chat.completions.create({
-            messages: [{ role: "user", content: "test" }],
-            model: config.azureOpenAI.deployment,
-            max_tokens: 1
-          });
-          console.log("Azure OpenAI client initialized successfully");
-        } catch (testError) {
-          console.error("Error testing Azure OpenAI client:", testError);
-          throw new Error("Failed to connect to Azure OpenAI service");
-        }
 
         setClient(newClient);
         setError(null);
