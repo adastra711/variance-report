@@ -16,7 +16,6 @@ import {
 import { Document, Packer, Paragraph } from 'docx';
 import { AzureOpenAI } from "openai";
 import { getConfigValue } from "../config";
-import { AzureOpenAIClient } from "openai";
 
 const useStyles = makeStyles({
   root: {
@@ -173,7 +172,12 @@ export default function VarianceReport() {
           throw new Error('Missing required configuration values');
         }
 
-        const newClient = new AzureOpenAIClient(apiKey, endpoint);
+        const newClient = new AzureOpenAI({
+          apiKey,
+          endpoint,
+          apiVersion: '2024-02-15-preview'
+        });
+        
         setClient(newClient);
         setDeployment(modelDeployment);
       } catch (err) {
@@ -214,7 +218,7 @@ export default function VarianceReport() {
         max_tokens: 150
       });
 
-      const analysis = response.choices[0]?.message?.content;
+      const analysis = response.choices[0]?.message?.content || undefined;
 
       const newEntry: Entry = {
         category: currentEntry.category || '',
