@@ -26,6 +26,13 @@ export default defineConfig(({ mode }) => {
       https: {
         key: process.env.HTTPS_KEY,
         cert: process.env.HTTPS_CERT
+      },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:7071',
+          changeOrigin: true,
+          secure: false,
+        }
       }
     },
     define: {

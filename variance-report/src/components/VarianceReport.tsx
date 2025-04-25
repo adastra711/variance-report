@@ -160,27 +160,18 @@ export default function VarianceReport() {
         setIsLoading(true);
         setError(undefined);
 
-        let apiKey, endpoint, modelDeployment;
+        const apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
+        const endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
+        const modelDeployment = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT;
 
-        // In development, use Vite env vars directly
-        if (import.meta.env.DEV) {
-          apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
-          endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
-          modelDeployment = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT;
-        } else {
-          // In production, fetch from API
-          const response = await fetch('/api/config');
-          if (!response.ok) {
-            throw new Error(`Failed to fetch config: ${response.statusText}`);
-          }
-          const config = await response.json();
-          apiKey = config.AZURE_OPENAI_API_KEY;
-          endpoint = config.AZURE_OPENAI_ENDPOINT;
-          modelDeployment = config.AZURE_OPENAI_DEPLOYMENT;
-        }
+        console.log('Configuration check:', {
+          hasApiKey: !!apiKey,
+          hasEndpoint: !!endpoint,
+          hasDeployment: !!modelDeployment
+        });
 
         if (!apiKey || !endpoint || !modelDeployment) {
-          throw new Error('Missing required configuration values');
+          throw new Error('Missing required configuration values. Please check your environment variables.');
         }
 
         const newClient = new AzureOpenAI({
