@@ -36,10 +36,10 @@ export default defineConfig(({ mode }) => {
       }
     },
     define: {
-      // Expose Azure OpenAI environment variables to the client
-      'import.meta.env.VITE_AZURE_OPENAI_API_KEY': JSON.stringify(env.VITE_AZURE_OPENAI_API_KEY),
-      'import.meta.env.VITE_AZURE_OPENAI_ENDPOINT': JSON.stringify(env.VITE_AZURE_OPENAI_ENDPOINT),
-      'import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT': JSON.stringify(env.VITE_AZURE_OPENAI_DEPLOYMENT)
+      // Hardcoded Azure OpenAI values for testing
+      'import.meta.env.VITE_AZURE_OPENAI_API_KEY': JSON.stringify("c4205a4a0c6f4d0c9d2c4c0c0c0c0c0c"),
+      'import.meta.env.VITE_AZURE_OPENAI_ENDPOINT': JSON.stringify("https://variance-report.openai.azure.com/"),
+      'import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT': JSON.stringify("gpt-4")
     }
   }
 })
