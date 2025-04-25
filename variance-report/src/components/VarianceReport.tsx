@@ -154,11 +154,13 @@ export const VarianceReport: React.FC = () => {
   const [client, setClient] = useState<AzureOpenAI | null>(null);
 
   useEffect(() => {
-    const initializeClient = () => {
+    const initializeClient = async () => {
       try {
-        const apiKey = config.azureOpenAI.apiKey;
-        const endpoint = config.azureOpenAI.endpoint;
-        const deployment = config.azureOpenAI.deployment;
+        const [apiKey, endpoint, deployment] = await Promise.all([
+          config.azureOpenAI.apiKey,
+          config.azureOpenAI.endpoint,
+          config.azureOpenAI.deployment
+        ]);
 
         console.log('Configuration values:', {
           apiKey: apiKey ? 'present' : 'missing',
