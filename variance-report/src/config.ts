@@ -37,4 +37,3 @@ export const config = {
     apiVersion: "2024-02-15-preview"
   }
 }; 
-}; 
