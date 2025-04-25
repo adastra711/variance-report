@@ -5,9 +5,16 @@
   "main": "index.js",
   "scripts": {
     "start": "func start",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@azure/functions": "^3.5.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5",
+    "@types/node": "^18.15.11"
   }
 } 
