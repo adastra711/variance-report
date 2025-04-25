@@ -160,19 +160,16 @@ export default function VarianceReport() {
         setIsLoading(true);
         setError(undefined);
 
-        const apiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
-        const endpoint = import.meta.env.VITE_AZURE_OPENAI_ENDPOINT;
-        const modelDeployment = import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT;
+        // Hardcoded values directly in the code
+        const apiKey = "Ct9JSYy5Ewlwn9NnWmAik6ynJLl3VvJ9vodQTC3DTn5G9hgnrwnZJQQJ99BDACYeBjFXJ3w3AAABACOG1FKb";
+        const endpoint = "https://pgmai.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2025-01-01-preview";
+        const modelDeployment = "gpt-4";
 
-        console.log('Configuration check:', {
-          hasApiKey: !!apiKey,
-          hasEndpoint: !!endpoint,
-          hasDeployment: !!modelDeployment
+        console.log('Using hardcoded values:', {
+          apiKey: apiKey.substring(0, 5) + '...',
+          endpoint,
+          modelDeployment
         });
-
-        if (!apiKey || !endpoint || !modelDeployment) {
-          throw new Error('Missing required configuration values. Please check your environment variables.');
-        }
 
         const newClient = new AzureOpenAI({
           apiKey,
