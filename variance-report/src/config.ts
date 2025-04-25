@@ -4,11 +4,12 @@ const getConfigValue = async (key: string): Promise<string> => {
     // In Azure Static Web Apps, we can fetch the configuration from the API
     if (import.meta.env.PROD) {
       const response = await fetch('/api/config');
-      if (response.ok) {
-        const config = await response.json();
-        console.log(`Found ${key} in API config:`, config[key]);
-        return config[key] || "";
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
       }
+      const config = await response.json();
+      console.log(`Found ${key} in API config:`, config[key]);
+      return config[key] || "";
     }
 
     // Fall back to environment variables for development
