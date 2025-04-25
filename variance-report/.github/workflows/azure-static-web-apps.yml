@@ -20,6 +20,11 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Create env file
         run: |
           echo "VITE_AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}" > .env
@@ -28,7 +33,17 @@ jobs:
           echo "VITE_COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" >> .env
           echo "VITE_HUGGINGFACE_API_KEY=${{ secrets.HUGGINGFACE_API_KEY }}" >> .env
 
-      - name: Build And Deploy
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          VITE_AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          VITE_AZURE_OPENAI_DEPLOYMENT: ${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
+
+      - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -38,9 +53,7 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: "dist"
-          app_build_command: "npm install --legacy-peer-deps && npm run build"
-          skip_app_build: false
-          app_artifact_location: "dist"
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

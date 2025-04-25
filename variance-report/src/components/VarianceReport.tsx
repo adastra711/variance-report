@@ -15,6 +15,7 @@ import {
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
 import { AzureOpenAI } from "openai";
+import { config } from '../config';
 
 const useStyles = makeStyles({
   root: {
@@ -151,31 +152,35 @@ export const VarianceReport: React.FC = () => {
   const [currentEntry, setCurrentEntry] = useState<Partial<VarianceEntry>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Initialize Azure OpenAI client with Vite environment variables
-  const client = new AzureOpenAI({
-    apiKey: import.meta.env.VITE_AZURE_OPENAI_API_KEY || "",
-    endpoint: import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || "",
-    apiVersion: "2024-02-15-preview",
-  });
+  const [client, setClient] = useState<AzureOpenAI | null>(null);
 
   useEffect(() => {
-    // Check if required environment variables are present
-    if (!import.meta.env.VITE_AZURE_OPENAI_API_KEY || 
-        !import.meta.env.VITE_AZURE_OPENAI_ENDPOINT || 
-        !import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT) {
-      setError("Missing required Azure OpenAI credentials. Please check your environment variables.");
-      console.error("Missing environment variables:", {
-        apiKey: !!import.meta.env.VITE_AZURE_OPENAI_API_KEY,
-        endpoint: !!import.meta.env.VITE_AZURE_OPENAI_ENDPOINT,
-        deployment: !!import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT
+    // Initialize Azure OpenAI client
+    try {
+      if (!config.azureOpenAI.apiKey || !config.azureOpenAI.endpoint) {
+        throw new Error("Missing Azure OpenAI credentials");
+      }
+
+      const newClient = new AzureOpenAI({
+        apiKey: config.azureOpenAI.apiKey,
+        endpoint: config.azureOpenAI.endpoint,
+        apiVersion: config.azureOpenAI.apiVersion,
       });
+
+      setClient(newClient);
+    } catch (err) {
+      console.error("Error initializing Azure OpenAI client:", err);
+      setError("Failed to initialize Azure OpenAI client. Please check your configuration.");
     }
   }, []);
 
   const generateFullDescription = async (comment: string, category: string, varianceAmount: number) => {
     if (error) {
       throw new Error(error);
+    }
+
+    if (!client) {
+      throw new Error("Azure OpenAI client not initialized");
     }
 
     try {
@@ -199,7 +204,7 @@ Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
               { role: "system", content: "You are a helpful assistant that generates professional variance report explanations." },
               { role: "user", content: prompt }
             ],
-            model: import.meta.env.VITE_AZURE_OPENAI_DEPLOYMENT || "",
+            model: config.azureOpenAI.deployment,
             temperature: 0.7,
             max_tokens: 150,
           });
