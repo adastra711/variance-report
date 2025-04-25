@@ -14,7 +14,8 @@ import {
   shorthands,
 } from '@fluentui/react-components';
 import { Document, Packer, Paragraph } from 'docx';
-import { CohereClient } from "cohere-ai";
+import { AzureOpenAI } from "openai";
+import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
 
 const useStyles = makeStyles({
   root: {
@@ -142,10 +143,16 @@ interface VarianceEntry {
   fullDescription: string;
 }
 
-// Initialize Cohere client
-const client = new CohereClient({ 
-  token: "AOcELJ2qh4iW37tQJu1WkKVwIR3Uwo69vwliFRRJ",
-  clientName: "VarianceCommentary"
+// Initialize Azure OpenAI client
+const credential = new DefaultAzureCredential();
+const scope = "https://cognitiveservices.azure.com/.default";
+const azureADTokenProvider = getBearerTokenProvider(credential, scope);
+
+const client = new AzureOpenAI({
+  azureADTokenProvider,
+  apiVersion: "2024-02-15-preview",
+  endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+  deployment: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
 });
 
 // Add delay function for rate limiting
@@ -159,7 +166,7 @@ export const VarianceReport: React.FC = () => {
 
   const generateFullDescription = async (comment: string, category: string, varianceAmount: number) => {
     try {
-      console.log('Starting Cohere generation with:', {
+      console.log('Starting Azure OpenAI generation with:', {
         comment,
         category,
         varianceAmount
@@ -174,18 +181,18 @@ export const VarianceReport: React.FC = () => {
 
 Input: "${comment} (Category: ${category}, Variance: $${varianceAmount})"`;
 
-          const stream = await client.generateStream({
-            prompt: prompt
+          const response = await client.chat.completions.create({
+            messages: [
+              { role: "system", content: "You are a helpful assistant that generates professional variance report explanations." },
+              { role: "user", content: prompt }
+            ],
+            model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "",
+            temperature: 0.7,
+            max_tokens: 150,
           });
 
-          let generatedText = '';
-          for await (const chunk of stream) {
-            if ('text' in chunk && typeof chunk.text === 'string') {
-              generatedText += chunk.text;
-            }
-          }
-
-          console.log('Received Cohere response:', generatedText);
+          const generatedText = response.choices[0]?.message?.content;
+          console.log('Received Azure OpenAI response:', generatedText);
           
           if (generatedText) {
             const cleanedText = generatedText.trim();
