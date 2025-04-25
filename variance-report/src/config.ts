@@ -1,8 +1,8 @@
 // Configuration values for Azure OpenAI
 const getConfigValue = (key: string): string => {
   // In Azure Static Web Apps, environment variables are available directly
-  const value = import.meta.env[key];
-  console.log(`Checking ${key}:`, value ? 'present' : 'missing');
+  const value = import.meta.env[`VITE_${key}`];
+  console.log(`Checking VITE_${key}:`, value ? 'present' : 'missing');
   return value || "";
 };
 

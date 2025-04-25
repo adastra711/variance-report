@@ -41,12 +41,8 @@ jobs:
           app_location: "/"
           output_location: "dist"
           skip_app_build: true
-          configuration: |
-            {
-              "AZURE_OPENAI_API_KEY": "${{ secrets.AZURE_OPENAI_API_KEY }}",
-              "AZURE_OPENAI_ENDPOINT": "${{ secrets.AZURE_OPENAI_ENDPOINT }}",
-              "AZURE_OPENAI_DEPLOYMENT": "${{ secrets.AZURE_OPENAI_DEPLOYMENT }}"
-            }
+          app_build_command: "npm run build"
+          app_artifact_location: "dist"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
